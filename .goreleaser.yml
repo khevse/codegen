@@ -1,0 +1,28 @@
+project_name: codegen
+builds:
+-
+  main: ./cmd/codegen/
+  binary: codegen
+  env:
+    - CGO_ENABLED=0
+  goos:
+    - darwin
+    - linux
+    - windows
+
+  ldflags:
+    - -X github.com/khevse/codegen/internal/pkg/application.Version={{.Tag}} -X github.com/khevse/codegen/internal/pkg/application.Commit={{.FullCommit}} -X github.com/khevse/codegen/internal/pkg/application.BuildAt={{.Date}}
+
+env_files:
+  github_token: .gh_token
+
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ .Tag }}"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+    - '^docs:'
+    - '^test:'
