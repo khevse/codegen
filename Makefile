@@ -4,6 +4,7 @@ all:lint test-all build-codegen
 APP_VERSION:=$(shell git tag --points-at HEAD)
 APP_COMMIT:=$(shell git rev-parse HEAD)
 APP_BUILD_AT:=$(shell date -u '+%FT%T%z')
+BUILD_DIR?=bin
 
 .PHONY:lint
 lint:
@@ -16,7 +17,7 @@ test-all:
 .PHONY:build-codegen
 build-codegen:
 	CGO_ENABLED=0 go build \
-	-o tmp/codegen \
+	-o ${BUILD_DIR}/codegen \
 	-ldflags="-X github.com/khevse/codegen/internal/pkg/application.Version=${APP_VERSION} -X github.com/khevse/codegen/internal/pkg/application.Commit=${APP_COMMIT} -X github.com/khevse/codegen/internal/pkg/application.BuildAt=${APP_BUILD_AT}" \
 	./cmd/codegen/...
 

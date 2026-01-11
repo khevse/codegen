@@ -6,19 +6,18 @@
 # Interface generator
 
 ```bash
-codegen interface \
+bin/codegen interface \
 --type=github.com/khevse/codegen/tests/mainpkg.StructWithMethods=IStructWithMethods \
---target-dir=./tests/mainpkg \
---suffix=generated
+--target-dir=./internal/command/interface_creator \
+--suffix=_generated
 ```
 
 ## Objects wrapper for tests
 
 ```bash
-codegen object-test-wrapper \
+bin/codegen object-test-wrapper \
 --interface-type=github.com/khevse/codegen/tests/mainpkg.IFactory=FactoryWrapper \
---object-type=github.com/khevse/codegen/tests/mainpkg.Factory \
---target-dir=./tests/mainpkg  \
+--target-dir=./internal/command/object_test_wrapper  \
 --mock-package=github.com/khevse/codegen/tests/mainpkg/mocks \
---suffix=generated
+--suffix=_generated
 ```

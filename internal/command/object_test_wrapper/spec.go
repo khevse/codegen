@@ -42,7 +42,6 @@ type objectSpec struct {
 
 func newObjectSpec(
 	interfaceType argInterfaceType,
-	objectType argObjectType,
 	mockPackageName string,
 	typeDecl *astpkg.TypeDecl,
 	imports astpkg.ImportList,
@@ -61,16 +60,16 @@ func newObjectSpec(
 		}
 	}
 
-	objectPackage, ok := imports.GetByPath(objectType.Package)
+	objectPackage, ok := imports.GetByPath(interfaceType.Package)
 	if !ok {
-		return nil, fmt.Errorf("get object type package: %s", objectType.Package)
+		return nil, fmt.Errorf("get object type package: %s", interfaceType.Package)
 	}
 
 	var baseObjectTypeName string
 	if objectPackage.Alias == "" {
-		baseObjectTypeName = fmt.Sprintf("*%s", objectType.TypeName)
+		baseObjectTypeName = interfaceType.TypeName
 	} else {
-		baseObjectTypeName = fmt.Sprintf("*%s.%s", objectPackage.Alias, objectType.TypeName)
+		baseObjectTypeName = fmt.Sprintf("%s.%s", objectPackage.Alias, interfaceType.TypeName)
 	}
 
 	methodList := make([]methodSpec, 0, len(castedType.Methods))
@@ -86,12 +85,24 @@ func newObjectSpec(
 			return nil, fmt.Errorf("cast method type(%s): %T", item.Name, item.Type)
 		}
 
-		params, err := newFieldsList(item.Name, casedMethod.Params, mockPackageName, imports)
+		newFieldsParams := func(isParams bool, filedList []*astpkg.Field) newFieldListParams {
+			return newFieldListParams{
+				isParams:        isParams,
+				methodName:      item.Name,
+				filedList:       filedList,
+				mockPackageName: mockPackageName,
+				imports:         imports,
+			}
+		}
+
+		const isParams = true
+
+		params, err := newFieldsList(newFieldsParams(isParams, casedMethod.Params))
 		if err != nil {
 			return nil, fmt.Errorf("fields list from params: %w", err)
 		}
 
-		results, err := newFieldsList(item.Name, casedMethod.Results, mockPackageName, imports)
+		results, err := newFieldsList(newFieldsParams(!isParams, casedMethod.Results))
 		if err != nil {
 			return nil, fmt.Errorf("fields list from results: %w", err)
 		}
@@ -124,15 +135,18 @@ func newObjectSpec(
 	}, nil
 }
 
-func newFieldsList(
-	methodName string,
-	filedList []*astpkg.Field,
-	mockPackageName string,
-	imports astpkg.ImportList,
-) ([]field, error) {
-	imp, ok := imports.GetByPath(mockPackageName)
+type newFieldListParams struct {
+	isParams        bool
+	methodName      string
+	filedList       []*astpkg.Field
+	mockPackageName string
+	imports         astpkg.ImportList
+}
+
+func newFieldsList(params newFieldListParams) ([]field, error) {
+	imp, ok := params.imports.GetByPath(params.mockPackageName)
 	if !ok {
-		return nil, fmt.Errorf("not found mock package: %s", mockPackageName)
+		return nil, fmt.Errorf("not found mock package: %s", params.mockPackageName)
 	}
 
 	var mockPackageAlias string
@@ -140,9 +154,9 @@ func newFieldsList(
 		mockPackageAlias = imp.Alias
 	}
 
-	fieldList := make([]field, 0, len(filedList))
-	for i, item := range filedList {
-		objectSpecName := fmt.Sprintf("%sArg%d", methodName, i)
+	fieldList := make([]field, 0, len(params.filedList))
+	for i, item := range params.filedList {
+		objectSpecName := fmt.Sprintf("%sArg%d", params.methodName, i)
 		mockTypeName := ""
 		mockPackage := ""
 		if castedType, ok := astpkg.CastToType[astpkg.Ident](item.Type); ok {
@@ -159,11 +173,18 @@ func newFieldsList(
 			}
 		}
 
+		const emptyName = "_"
+
+		funcSpecName := lo.Ternary(item.Name == "", emptyName, item.Name)
+		if params.isParams && funcSpecName == emptyName {
+			funcSpecName = fmt.Sprintf("arg%d", i)
+		}
+
 		f := field{
 			ObjectSpecName: objectSpecName,
 			MockTypeName:   mockTypeName,
 			MockPackage:    mockPackage,
-			FuncSpecName:   lo.Ternary(item.Name == "", "_", item.Name),
+			FuncSpecName:   funcSpecName,
 			TypeName:       item.Type.ExprString(),
 			Type:           item.Type,
 		}

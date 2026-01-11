@@ -65,8 +65,8 @@ func (b *{{.objectSpec.Name}}Builder) SetBase(val {{ .objectSpec.BaseObjectTypeN
     return b
 }
 
-// GetWrapper return wrapper object
-func (b *{{.objectSpec.Name}}Builder) GetWrapper() *{{.objectSpec.Name}}{
+// Build return wrapper object
+func (b *{{.objectSpec.Name}}Builder) Build() *{{.objectSpec.Name}}{
     return &b.object
 }
 

@@ -19,7 +19,6 @@ func TestPrepareObjectSpec(t *testing.T) {
 			interfaceType: "github.com/khevse/codegen/tests/mainpkg.IFactory=FactoryWrapper",
 			targetDir:     "./../../../tests/mainpkg",
 			fileSuffix:    "",
-			objectType:    "github.com/khevse/codegen/tests/mainpkg.Factory",
 			mockPackage:   "github.com/khevse/codegen/tests/mainpkg/mocks",
 		}
 		importList, spec, err := prepareObjectSpec(args)
@@ -41,7 +40,19 @@ func TestPrepareObjectSpec(t *testing.T) {
 					{
 						Name:    "NewObject1",
 						Comment: "NewObject1 .",
-						Params:  []field{},
+						Params: []field{
+							{
+								ObjectSpecName: "NewObject1Arg0",
+								FuncSpecName:   "arg0",
+								TypeName:       "string",
+								Type: &astpkg.Ident{
+									Package:     "",
+									PackagePath: "",
+									Name:        "string",
+									Type:        nil,
+								},
+							},
+						},
 						Results: []field{
 							{
 								FuncSpecName:   "_",
@@ -81,7 +92,19 @@ func TestPrepareObjectSpec(t *testing.T) {
 					{
 						Name:    "NewObject2",
 						Comment: "NewObject2 .",
-						Params:  []field{},
+						Params: []field{
+							{
+								ObjectSpecName: "NewObject2Arg0",
+								FuncSpecName:   "val",
+								TypeName:       "string",
+								Type: &astpkg.Ident{
+									Package:     "",
+									PackagePath: "",
+									Name:        "string",
+									Type:        nil,
+								},
+							},
+						},
 						Results: []field{
 							{
 								FuncSpecName:   "_",
@@ -185,7 +208,7 @@ func TestPrepareObjectSpec(t *testing.T) {
 						},
 					},
 				},
-				BaseObjectTypeName: "*Factory",
+				BaseObjectTypeName: "IFactory",
 			},
 			spec,
 			cmpopts.SortSlices(func(i, j methodSpec) bool {
@@ -199,7 +222,6 @@ func TestPrepareObjectSpec(t *testing.T) {
 			interfaceType: "github.com/khevse/codegen/tests/mainpkg.IFactory=FactoryWrapper",
 			targetDir:     "./",
 			fileSuffix:    "",
-			objectType:    "github.com/khevse/codegen/tests/mainpkg.Factory",
 			mockPackage:   "github.com/khevse/codegen/tests/mainpkg/mocks",
 		}
 		importList, spec, err := prepareObjectSpec(args)
@@ -222,7 +244,19 @@ func TestPrepareObjectSpec(t *testing.T) {
 					{
 						Name:    "NewObject1",
 						Comment: "NewObject1 .",
-						Params:  []field{},
+						Params: []field{
+							{
+								ObjectSpecName: "NewObject1Arg0",
+								FuncSpecName:   "arg0",
+								TypeName:       "string",
+								Type: &astpkg.Ident{
+									Package:     "",
+									PackagePath: "",
+									Name:        "string",
+									Type:        nil,
+								},
+							},
+						},
 						Results: []field{
 							{
 								FuncSpecName:   "_",
@@ -262,7 +296,19 @@ func TestPrepareObjectSpec(t *testing.T) {
 					{
 						Name:    "NewObject2",
 						Comment: "NewObject2 .",
-						Params:  []field{},
+						Params: []field{
+							{
+								ObjectSpecName: "NewObject2Arg0",
+								FuncSpecName:   "val",
+								TypeName:       "string",
+								Type: &astpkg.Ident{
+									Package:     "",
+									PackagePath: "",
+									Name:        "string",
+									Type:        nil,
+								},
+							},
+						},
 						Results: []field{
 							{
 								FuncSpecName:   "_",
@@ -366,7 +412,7 @@ func TestPrepareObjectSpec(t *testing.T) {
 						},
 					},
 				},
-				BaseObjectTypeName: "*mainpkg.Factory",
+				BaseObjectTypeName: "mainpkg.IFactory",
 			},
 			spec,
 			cmpopts.SortSlices(func(i, j methodSpec) bool {
@@ -379,7 +425,6 @@ func TestPrepareObjectSpec(t *testing.T) {
 func TestExecute(t *testing.T) {
 	args := commandArgs{
 		interfaceType: "github.com/khevse/codegen/tests/mainpkg.IFactory=FactoryWrapper",
-		objectType:    "github.com/khevse/codegen/tests/mainpkg.Factory",
 		targetDir:     "./",
 		fileSuffix:    "_generated",
 		mockPackage:   "github.com/khevse/codegen/tests/mainpkg/mocks",
@@ -429,29 +474,29 @@ func NewFactoryWrapperMocks(t *testing.T) *FactoryWrapperMocks {
 /* FactoryWrapper wrapper for type IFactory: IFactory . */
 type FactoryWrapper struct {
 	mocks FactoryWrapperMocks
-	base  *mainpkg.Factory
+	base  mainpkg.IFactory
 }
 
 /* NewObject1 . */
-func (w *FactoryWrapper) NewObject1() (_ mainpkg.IObject1) {
+func (w *FactoryWrapper) NewObject1(arg0 string) (_ mainpkg.IObject1) {
 	existsMock := false ||
 		w.mocks.IObject1 != nil
 	if existsMock {
 		return w.mocks.IObject1
 	}
 
-	return w.base.NewObject1()
+	return w.base.NewObject1(arg0)
 }
 
 /* NewObject2 . */
-func (w *FactoryWrapper) NewObject2() (_ mainpkg.IObject2) {
+func (w *FactoryWrapper) NewObject2(val string) (_ mainpkg.IObject2) {
 	existsMock := false ||
 		w.mocks.IObject2 != nil
 	if existsMock {
 		return w.mocks.IObject2
 	}
 
-	return w.base.NewObject2()
+	return w.base.NewObject2(val)
 }
 
 // FactoryWrapperBuilder wrapper builder
@@ -460,13 +505,13 @@ type FactoryWrapperBuilder struct {
 }
 
 // SetBase set the base object with default behavior
-func (b *FactoryWrapperBuilder) SetBase(val *mainpkg.Factory) *FactoryWrapperBuilder {
+func (b *FactoryWrapperBuilder) SetBase(val mainpkg.IFactory) *FactoryWrapperBuilder {
 	b.object.base = val
 	return b
 }
 
-// GetWrapper return wrapper object
-func (b *FactoryWrapperBuilder) GetWrapper() *FactoryWrapper {
+// Build return wrapper object
+func (b *FactoryWrapperBuilder) Build() *FactoryWrapper {
 	return &b.object
 }
 

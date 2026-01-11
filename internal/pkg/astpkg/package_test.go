@@ -247,7 +247,17 @@ func TestSetPackagePathForAllDecl(t *testing.T) {
 							{
 								Name: "NewObject1",
 								Type: &FuncType{
-									Params: []*Field{},
+									Params: []*Field{
+										{
+											Name: "",
+											Type: &Ident{
+												Package:     "",
+												PackagePath: "",
+												Name:        "string",
+												Type:        nil,
+											},
+										},
+									},
 									Results: []*Field{
 										{
 											Name: "",
@@ -284,7 +294,17 @@ func TestSetPackagePathForAllDecl(t *testing.T) {
 							{
 								Name: "NewObject2",
 								Type: &FuncType{
-									Params: []*Field{},
+									Params: []*Field{
+										{
+											Name: "val",
+											Type: &Ident{
+												Package:     "",
+												PackagePath: "",
+												Name:        "string",
+												Type:        nil,
+											},
+										},
+									},
 									Results: []*Field{
 										{
 											Name: "",

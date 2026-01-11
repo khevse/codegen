@@ -165,7 +165,6 @@ func prepareObjectSpecList(args commandArgs) (astpkg.ImportList, []objectSpec, e
 		addUsedImport := func(t astpkg.Type) {
 			for _, item := range t.Imports() {
 				usedImports[item.Alias] = struct{}{}
-				usedImports[item.AliasFromPath()] = struct{}{}
 			}
 		}
 		for _, item := range interfaceList {

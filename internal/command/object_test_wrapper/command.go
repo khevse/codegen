@@ -13,7 +13,6 @@ import (
 
 type commandArgs struct {
 	interfaceType string
-	objectType    string
 	targetDir     string
 	mockPackage   string
 	fileSuffix    string
@@ -38,7 +37,6 @@ func (c *Command) ShortName() string {
 func (c *Command) InitFlags(flagSetter command.FlagSetter) error {
 	const (
 		flagInterfaceType = "interface-type"
-		flagObjectType    = "object-type"
 		flagTargetDir     = "target-dir"
 		flagMockPackage   = "mock-package"
 		flagFileSuffix    = "suffix"
@@ -50,13 +48,6 @@ func (c *Command) InitFlags(flagSetter command.FlagSetter) error {
 		"i",
 		"",
 		"interface type for mock generation. Examples: <package>.<InterfaceName>;<package>.<InterfaceName>=<MockName>",
-	)
-	flagSetter.Flags().StringVarP(
-		&c.args.objectType,
-		flagObjectType,
-		"o",
-		"",
-		"object type which implement interface. Examples: <package>.<InterfaceName>",
 	)
 	flagSetter.Flags().StringVarP(
 		&c.args.targetDir,
@@ -133,11 +124,6 @@ func prepareObjectSpec(args commandArgs) (astpkg.ImportList, *objectSpec, error)
 		return nil, nil, fmt.Errorf("parse interface type: %w", err)
 	}
 
-	objectType, err := parseObjectType(args.objectType)
-	if err != nil {
-		return nil, nil, fmt.Errorf("parse object type: %w", err)
-	}
-
 	pkg, err := astpkg.ParsePackage(interfaceType.Package)
 	if err != nil {
 		return nil, nil, fmt.Errorf("parse package(%s): %w", interfaceType.Package, err)
@@ -152,17 +138,17 @@ func prepareObjectSpec(args commandArgs) (astpkg.ImportList, *objectSpec, error)
 		return nil, nil, fmt.Errorf("init self package imports: %w", err)
 	}
 
-	objectType.Package = lo.Ternary(
-		objectType.Package == targetPackage,
+	interfaceType.Package = lo.Ternary(
+		interfaceType.Package == targetPackage,
 		"",
-		objectType.Package,
+		interfaceType.Package,
 	)
 	mockPackage := lo.Ternary(
 		args.mockPackage == targetPackage,
 		"",
 		args.mockPackage,
 	)
-	baseImports := []string{"", mockPackage, objectType.Package}
+	baseImports := []string{"", mockPackage, interfaceType.Package}
 
 	imports, err := astpkg.GetAllPackagesImports(baseImports, pkg)
 	if err != nil {
@@ -174,7 +160,7 @@ func prepareObjectSpec(args commandArgs) (astpkg.ImportList, *objectSpec, error)
 		return nil, nil, fmt.Errorf("not found type: %s", interfaceType.TypeName)
 	}
 
-	factoryDesc, err := newObjectSpec(interfaceType, objectType, mockPackage, typeDecl, imports)
+	factoryDesc, err := newObjectSpec(interfaceType, mockPackage, typeDecl, imports)
 	if err != nil {
 		return nil, nil, fmt.Errorf(
 			"new factory description(%s): %w",
@@ -187,7 +173,6 @@ func prepareObjectSpec(args commandArgs) (astpkg.ImportList, *objectSpec, error)
 		addUsedImport := func(t astpkg.Type) {
 			for _, item := range t.Imports() {
 				usedImports[item.Alias] = struct{}{}
-				usedImports[item.AliasFromPath()] = struct{}{}
 			}
 		}
 		for _, item := range factoryDesc.Fields {
@@ -197,9 +182,11 @@ func prepareObjectSpec(args commandArgs) (astpkg.ImportList, *objectSpec, error)
 		for _, method := range factoryDesc.Methods {
 			for _, item := range method.Params {
 				addUsedImport(item.Type)
+				usedImports[filepath.Base(item.MockPackage)] = struct{}{}
 			}
 			for _, item := range method.Results {
 				addUsedImport(item.Type)
+				usedImports[filepath.Base(item.MockPackage)] = struct{}{}
 			}
 		}
 
@@ -240,27 +227,5 @@ func parseInterfaceType(val string) (argInterfaceType, error) {
 		Package:     packageName,
 		TypeName:    typeName,
 		WrapperName: wrapperName,
-	}, nil
-}
-
-type argObjectType struct {
-	Package  string
-	TypeName string
-}
-
-func parseObjectType(val string) (argObjectType, error) {
-	val = strings.TrimSpace(val)
-
-	fromTypeDelimiterIdx := strings.LastIndex(val, ".")
-	if fromTypeDelimiterIdx == -1 {
-		return argObjectType{}, fmt.Errorf("invalid type: %s", val)
-	}
-
-	packageName := val[:fromTypeDelimiterIdx]
-	typeName := val[fromTypeDelimiterIdx+1:]
-
-	return argObjectType{
-		Package:  packageName,
-		TypeName: typeName,
 	}, nil
 }
