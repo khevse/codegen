@@ -67,6 +67,8 @@ func NewTypeDecl(imp Import, generalDecl *ast.GenDecl, spec ast.Spec) (*TypeDecl
 		specType = NewType(castedType)
 	case *ast.ChanType:
 		specType = NewType(castedType)
+	case *ast.SelectorExpr:
+		specType = NewType(castedType)
 	default:
 		panic(fmt.Sprintf("unknown type: %+[1]v(%[1]T)", castedType))
 	}

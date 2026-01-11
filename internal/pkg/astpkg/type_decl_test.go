@@ -261,4 +261,31 @@ func TestNewTypeDeclList(t *testing.T) {
 			typeDeclList,
 		)
 	})
+
+	t.Run("SelectorExpr", func(t *testing.T) {
+		typeDeclList := getTypeDeclList(
+			t,
+			`package p;
+
+			type Option = p.Option`,
+		)
+		require.Equal(
+			t,
+			[]*TypeDecl{
+				{
+					Name:    "Option",
+					Comment: "",
+					Type: &SelectorExpr{
+						Package:     "p",
+						PackagePath: "",
+						Name:        "Option",
+						Type:        nil,
+					},
+					Package:     "test",
+					PackagePath: "./test",
+				},
+			},
+			typeDeclList,
+		)
+	})
 }
