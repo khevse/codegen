@@ -353,6 +353,68 @@ func TestType(t *testing.T) {
 		require.Equal(t, "val chan string", decl.Params[0].String())
 		require.Equal(t, "_ chan string", decl.Results[0].String())
 	})
+
+	t.Run("IndexExpr", func(t *testing.T) {
+		decl := newFuncDeclForTest(
+			t,
+			`package p;
+			import p2 "./example"
+			func test(val *p2.Item[p2.ID]) *p2.Item[p2.ID] { return val };`,
+		)
+		require.Equal(
+			t,
+			&FuncDecl{
+				Receiver: "",
+				Name:     "test",
+				Comment:  "",
+				Params: []*Field{
+					{
+						Name: "val",
+						Type: &StarExpr{
+							Type: &IndexExpr{
+								Index: &SelectorExpr{
+									Package:     "p2",
+									PackagePath: "",
+									Name:        "ID",
+									Type:        nil,
+								},
+								X: &SelectorExpr{
+									Package:     "p2",
+									PackagePath: "",
+									Name:        "Item",
+									Type:        nil,
+								},
+							},
+						},
+					},
+				},
+				Results: []*Field{
+					{
+						Name: "",
+						Type: &StarExpr{
+							Type: &IndexExpr{
+								Index: &SelectorExpr{
+									Package:     "p2",
+									PackagePath: "",
+									Name:        "ID",
+									Type:        nil,
+								},
+								X: &SelectorExpr{
+									Package:     "p2",
+									PackagePath: "",
+									Name:        "Item",
+									Type:        nil,
+								},
+							},
+						},
+					},
+				},
+			},
+			decl,
+		)
+		require.Equal(t, "val *p2.Item[p2.ID]", decl.Params[0].String())
+		require.Equal(t, "_ *p2.Item[p2.ID]", decl.Results[0].String())
+	})
 }
 
 func TestSetPackageInformation(t *testing.T) {

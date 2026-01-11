@@ -20,6 +20,7 @@ var (
 	_ Type = (*StructType)(nil)
 	_ Type = (*InterfaceType)(nil)
 	_ Type = (*ChanType)(nil)
+	_ Type = (*IndexExpr)(nil)
 
 	_ PackageGetterType = (*Ident)(nil)
 	_ PackageGetterType = (*SelectorExpr)(nil)
@@ -212,6 +213,16 @@ func (t ChanType) ExprString() string {
 	}
 }
 
+type IndexExpr struct {
+	Index Type
+	X     Type
+}
+
+func (t IndexExpr) String() string { return t.ExprString() }
+func (t IndexExpr) ExprString() string {
+	return fmt.Sprintf("%s[%s]", t.X.ExprString(), t.Index.ExprString())
+}
+
 func NewType(expr ast.Expr) Type {
 	switch casted := expr.(type) {
 	case *ast.Ident:
@@ -266,6 +277,11 @@ func NewType(expr ast.Expr) Type {
 			PackagePath: "",
 			Name:        casted.Sel.Name,
 			Type:        nil,
+		}
+	case *ast.IndexExpr:
+		return &IndexExpr{
+			Index: NewType(casted.Index),
+			X:     NewType(casted.X),
 		}
 	case *ast.Ellipsis:
 		return &EllipsisType{
@@ -333,6 +349,14 @@ func InspectType(t Type, fn func(Type) error) error {
 		}
 		return inspectSelf(casted)
 	case *SelectorExpr:
+		return inspectSelf(casted)
+	case *IndexExpr:
+		if err := InspectType(casted.Index, fn); err != nil {
+			return fmt.Errorf("IndexExpr index(%s): %w", casted, err)
+		}
+		if err := InspectType(casted.X, fn); err != nil {
+			return fmt.Errorf("IndexExpr X(%s): %w", casted, err)
+		}
 		return inspectSelf(casted)
 	case *EllipsisType:
 		err := InspectType(casted.Type, fn)
