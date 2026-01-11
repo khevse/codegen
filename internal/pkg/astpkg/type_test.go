@@ -4,6 +4,7 @@ import (
 	"go/ast"
 	"testing"
 
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/require"
 )
 
@@ -234,7 +235,7 @@ func TestType(t *testing.T) {
 	t.Run("FuncType", func(t *testing.T) {
 		decl := newFuncDeclForTest(
 			t,
-			`package p; func test(val func() string) string { return val() };`,
+			`package p; func test(val1, val2 func() string) (res1, _ string) { return val1(), val2() };`,
 		)
 		require.Equal(
 			t,
@@ -244,7 +245,14 @@ func TestType(t *testing.T) {
 				Comment:  "",
 				Params: []*Field{
 					{
-						Name: "val",
+						Name: "val1",
+						Type: &FuncType{
+							Params:  []*Field{},
+							Results: []*Field{{Name: "", Type: &Ident{Name: "string"}}},
+						},
+					},
+					{
+						Name: "val2",
 						Type: &FuncType{
 							Params:  []*Field{},
 							Results: []*Field{{Name: "", Type: &Ident{Name: "string"}}},
@@ -253,15 +261,36 @@ func TestType(t *testing.T) {
 				},
 				Results: []*Field{
 					{
-						Name: "",
+						Name: "res1",
+						Type: &Ident{Name: "string"},
+					},
+					{
+						Name: "_",
 						Type: &Ident{Name: "string"},
 					},
 				},
 			},
 			decl,
 		)
-		require.Equal(t, "val FuncType(func() (_ string))", decl.Params[0].String())
-		require.Equal(t, "_ Ident(string)", decl.Results[0].String())
+
+		require.Equal(t,
+			[]string{
+				"val1 FuncType(func() (_ string))",
+				"val2 FuncType(func() (_ string))",
+			},
+			lo.Map(decl.Params, func(item *Field, _ int) string {
+				return item.String()
+			}),
+		)
+		require.Equal(t,
+			[]string{
+				"res1 Ident(string)",
+				"_ Ident(string)",
+			},
+			lo.Map(decl.Results, func(item *Field, _ int) string {
+				return item.String()
+			}),
+		)
 		require.Empty(t, decl.GetSignatureImports())
 	})
 

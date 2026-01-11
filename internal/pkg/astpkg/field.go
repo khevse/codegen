@@ -16,23 +16,35 @@ func NewFieldList(fieldList *ast.FieldList) []*Field {
 	list := make([]*Field, 0, fieldList.NumFields())
 	if fieldList != nil {
 		for _, field := range fieldList.List {
-			list = append(list, NewField(field))
+			list = append(list, NewField(field)...)
 		}
 	}
 
 	return list
 }
 
-func NewField(field *ast.Field) *Field {
-	var name string
-	for _, nameIdent := range field.Names {
-		name = lo.Ternary(nameIdent.Name != "", nameIdent.Name, name)
+func NewField(field *ast.Field) []*Field {
+	if len(field.Names) == 0 {
+		return []*Field{
+			{
+				Name: "",
+				Type: NewType(field.Type),
+			},
+		}
 	}
 
-	return &Field{
-		Name: name,
-		Type: NewType(field.Type),
+	list := make([]*Field, 0, len(field.Names))
+	for _, nameIdent := range field.Names {
+		list = append(
+			list,
+			&Field{
+				Name: nameIdent.Name,
+				Type: NewType(field.Type),
+			},
+		)
 	}
+
+	return list
 }
 
 func (f Field) String() string {
