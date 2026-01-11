@@ -49,6 +49,32 @@ func TestPrepareObjectSpec(t *testing.T) {
 								ObjectSpecName: "IObject1",
 								MockTypeName:   "IObject1Mock",
 								MockPackage:    "mocks",
+								Type: &astpkg.Ident{
+									Package:     "",
+									PackagePath: "",
+									Name:        "IObject1",
+									Type: &astpkg.InterfaceType{
+										Methods: []*astpkg.Field{
+											{
+												Name: "String",
+												Type: &astpkg.FuncType{
+													Params: []*astpkg.Field{},
+													Results: []*astpkg.Field{
+														{
+															Name: "",
+															Type: &astpkg.Ident{
+																Package:     "",
+																PackagePath: "",
+																Name:        "string",
+																Type:        nil,
+															},
+														},
+													},
+												},
+											},
+										},
+									},
+								},
 							},
 						},
 					},
@@ -63,6 +89,32 @@ func TestPrepareObjectSpec(t *testing.T) {
 								ObjectSpecName: "IObject2",
 								MockTypeName:   "IObject2Mock",
 								MockPackage:    "mocks",
+								Type: &astpkg.Ident{
+									Package:     "",
+									PackagePath: "",
+									Name:        "IObject2",
+									Type: &astpkg.InterfaceType{
+										Methods: []*astpkg.Field{
+											{
+												Name: "String",
+												Type: &astpkg.FuncType{
+													Params: []*astpkg.Field{},
+													Results: []*astpkg.Field{
+														{
+															Name: "",
+															Type: &astpkg.Ident{
+																Package:     "",
+																PackagePath: "",
+																Name:        "string",
+																Type:        nil,
+															},
+														},
+													},
+												},
+											},
+										},
+									},
+								},
 							},
 						},
 					},
@@ -73,12 +125,64 @@ func TestPrepareObjectSpec(t *testing.T) {
 						TypeName:     "IObject1",
 						MockPackage:  "mocks",
 						MockTypeName: "IObject1Mock",
+						Type: &astpkg.Ident{
+							Package:     "",
+							PackagePath: "",
+							Name:        "IObject1",
+							Type: &astpkg.InterfaceType{
+								Methods: []*astpkg.Field{
+									{
+										Name: "String",
+										Type: &astpkg.FuncType{
+											Params: []*astpkg.Field{},
+											Results: []*astpkg.Field{
+												{
+													Name: "",
+													Type: &astpkg.Ident{
+														Package:     "",
+														PackagePath: "",
+														Name:        "string",
+														Type:        nil,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
 					},
 					{
 						Name:         "IObject2",
 						TypeName:     "IObject2",
 						MockPackage:  "mocks",
 						MockTypeName: "IObject2Mock",
+						Type: &astpkg.Ident{
+							Package:     "",
+							PackagePath: "",
+							Name:        "IObject2",
+							Type: &astpkg.InterfaceType{
+								Methods: []*astpkg.Field{
+									{
+										Name: "String",
+										Type: &astpkg.FuncType{
+											Params: []*astpkg.Field{},
+											Results: []*astpkg.Field{
+												{
+													Name: "",
+													Type: &astpkg.Ident{
+														Package:     "",
+														PackagePath: "",
+														Name:        "string",
+														Type:        nil,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
 					},
 				},
 				BaseObjectTypeName: "*Factory",
@@ -126,6 +230,32 @@ func TestPrepareObjectSpec(t *testing.T) {
 								ObjectSpecName: "IObject1",
 								MockTypeName:   "IObject1Mock",
 								MockPackage:    "mocks",
+								Type: &astpkg.Ident{
+									Package:     "mainpkg",
+									PackagePath: "github.com/khevse/codegen/tests/mainpkg",
+									Name:        "IObject1",
+									Type: &astpkg.InterfaceType{
+										Methods: []*astpkg.Field{
+											{
+												Name: "String",
+												Type: &astpkg.FuncType{
+													Params: []*astpkg.Field{},
+													Results: []*astpkg.Field{
+														{
+															Name: "",
+															Type: &astpkg.Ident{
+																Package:     "",
+																PackagePath: "",
+																Name:        "string",
+																Type:        nil,
+															},
+														},
+													},
+												},
+											},
+										},
+									},
+								},
 							},
 						},
 					},
@@ -140,6 +270,32 @@ func TestPrepareObjectSpec(t *testing.T) {
 								ObjectSpecName: "IObject2",
 								MockTypeName:   "IObject2Mock",
 								MockPackage:    "mocks",
+								Type: &astpkg.Ident{
+									Package:     "mainpkg",
+									PackagePath: "github.com/khevse/codegen/tests/mainpkg",
+									Name:        "IObject2",
+									Type: &astpkg.InterfaceType{
+										Methods: []*astpkg.Field{
+											{
+												Name: "String",
+												Type: &astpkg.FuncType{
+													Params: []*astpkg.Field{},
+													Results: []*astpkg.Field{
+														{
+															Name: "",
+															Type: &astpkg.Ident{
+																Package:     "",
+																PackagePath: "",
+																Name:        "string",
+																Type:        nil,
+															},
+														},
+													},
+												},
+											},
+										},
+									},
+								},
 							},
 						},
 					},
@@ -150,12 +306,64 @@ func TestPrepareObjectSpec(t *testing.T) {
 						TypeName:     "mainpkg.IObject1",
 						MockPackage:  "mocks",
 						MockTypeName: "IObject1Mock",
+						Type: &astpkg.Ident{
+							Package:     "mainpkg",
+							PackagePath: "github.com/khevse/codegen/tests/mainpkg",
+							Name:        "IObject1",
+							Type: &astpkg.InterfaceType{
+								Methods: []*astpkg.Field{
+									{
+										Name: "String",
+										Type: &astpkg.FuncType{
+											Params: []*astpkg.Field{},
+											Results: []*astpkg.Field{
+												{
+													Name: "",
+													Type: &astpkg.Ident{
+														Package:     "",
+														PackagePath: "",
+														Name:        "string",
+														Type:        nil,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
 					},
 					{
 						Name:         "IObject2",
 						TypeName:     "mainpkg.IObject2",
 						MockPackage:  "mocks",
 						MockTypeName: "IObject2Mock",
+						Type: &astpkg.Ident{
+							Package:     "mainpkg",
+							PackagePath: "github.com/khevse/codegen/tests/mainpkg",
+							Name:        "IObject2",
+							Type: &astpkg.InterfaceType{
+								Methods: []*astpkg.Field{
+									{
+										Name: "String",
+										Type: &astpkg.FuncType{
+											Params: []*astpkg.Field{},
+											Results: []*astpkg.Field{
+												{
+													Name: "",
+													Type: &astpkg.Ident{
+														Package:     "",
+														PackagePath: "",
+														Name:        "string",
+														Type:        nil,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
 					},
 				},
 				BaseObjectTypeName: "*mainpkg.Factory",

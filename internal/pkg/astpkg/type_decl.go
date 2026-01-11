@@ -24,6 +24,10 @@ func (t TypeDecl) String() string {
 	return fmt.Sprintf("%s.%s(%s)", t.PackagePath, t.Name, t.Type)
 }
 
+func (t TypeDecl) GetFieldsImports() ImportList {
+	return lo.Uniq(t.Type.Imports())
+}
+
 type TypeDeclList []*TypeDecl
 
 func NewTypeDeclList(pkg string, generalDecl *ast.GenDecl) TypeDeclList {

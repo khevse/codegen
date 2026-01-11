@@ -26,8 +26,9 @@ func TestType(t *testing.T) {
 			},
 			decl,
 		)
-		require.Equal(t, "val string", decl.Params[0].String())
-		require.Equal(t, "_ string", decl.Results[0].String())
+		require.Equal(t, "val Ident(string)", decl.Params[0].String())
+		require.Equal(t, "_ Ident(string)", decl.Results[0].String())
+		require.Empty(t, decl.GetSignatureImports())
 	})
 
 	t.Run("Ident with type", func(t *testing.T) {
@@ -62,8 +63,9 @@ func TestType(t *testing.T) {
 			},
 			decl,
 		)
-		require.Equal(t, "val Struct", decl.Params[0].String())
-		require.Equal(t, "_ Struct", decl.Results[0].String())
+		require.Equal(t, "val Ident(Struct)", decl.Params[0].String())
+		require.Equal(t, "_ Ident(Struct)", decl.Results[0].String())
+		require.Empty(t, decl.GetSignatureImports())
 	})
 
 	t.Run("StarExpr", func(t *testing.T) {
@@ -92,8 +94,9 @@ func TestType(t *testing.T) {
 			},
 			decl,
 		)
-		require.Equal(t, "val *string", decl.Params[0].String())
-		require.Equal(t, "_ *string", decl.Results[0].String())
+		require.Equal(t, "val StarExpr(*string)", decl.Params[0].String())
+		require.Equal(t, "_ StarExpr(*string)", decl.Results[0].String())
+		require.Empty(t, decl.GetSignatureImports())
 	})
 
 	t.Run("ArrayType", func(t *testing.T) {
@@ -122,8 +125,9 @@ func TestType(t *testing.T) {
 			},
 			decl,
 		)
-		require.Equal(t, "val []string", decl.Params[0].String())
-		require.Equal(t, "_ []string", decl.Results[0].String())
+		require.Equal(t, "val ArrayType([]string)", decl.Params[0].String())
+		require.Equal(t, "_ ArrayType([]string)", decl.Results[0].String())
+		require.Empty(t, decl.GetSignatureImports())
 	})
 
 	t.Run("MapType", func(t *testing.T) {
@@ -158,8 +162,9 @@ func TestType(t *testing.T) {
 			},
 			decl,
 		)
-		require.Equal(t, "val map[string]string", decl.Params[0].String())
-		require.Equal(t, "_ map[string]string", decl.Results[0].String())
+		require.Equal(t, "val MapType(map[string]string)", decl.Params[0].String())
+		require.Equal(t, "_ MapType(map[string]string)", decl.Results[0].String())
+		require.Empty(t, decl.GetSignatureImports())
 	})
 
 	t.Run("SelectorExpr", func(t *testing.T) {
@@ -190,8 +195,9 @@ func TestType(t *testing.T) {
 			},
 			decl,
 		)
-		require.Equal(t, "val p2.Struct(<nil>)", decl.Params[0].String())
-		require.Equal(t, "_ p2.Struct(<nil>)", decl.Results[0].String())
+		require.Equal(t, "val SelectorExpr(p2.Struct(<nil>))", decl.Params[0].String())
+		require.Equal(t, "_ SelectorExpr(p2.Struct(<nil>))", decl.Results[0].String())
+		require.Equal(t, ImportList{{Alias: "p2", Path: ""}}, decl.GetSignatureImports())
 	})
 
 	t.Run("Ellipsis", func(t *testing.T) {
@@ -220,8 +226,9 @@ func TestType(t *testing.T) {
 			},
 			decl,
 		)
-		require.Equal(t, "val ...any", decl.Params[0].String())
-		require.Equal(t, "_ []any", decl.Results[0].String())
+		require.Equal(t, "val EllipsisType(...any)", decl.Params[0].String())
+		require.Equal(t, "_ ArrayType([]any)", decl.Results[0].String())
+		require.Empty(t, decl.GetSignatureImports())
 	})
 
 	t.Run("FuncType", func(t *testing.T) {
@@ -253,8 +260,9 @@ func TestType(t *testing.T) {
 			},
 			decl,
 		)
-		require.Equal(t, "val func() (_ string)", decl.Params[0].String())
-		require.Equal(t, "_ string", decl.Results[0].String())
+		require.Equal(t, "val FuncType(func() (_ string))", decl.Params[0].String())
+		require.Equal(t, "_ Ident(string)", decl.Results[0].String())
+		require.Empty(t, decl.GetSignatureImports())
 	})
 
 	t.Run("StructType", func(t *testing.T) {
@@ -283,8 +291,9 @@ func TestType(t *testing.T) {
 			},
 			decl,
 		)
-		require.Equal(t, "val struct{}", decl.Params[0].String())
-		require.Equal(t, "_ struct{}", decl.Results[0].String())
+		require.Equal(t, "val StructType(struct{})", decl.Params[0].String())
+		require.Equal(t, "_ StructType(struct{})", decl.Results[0].String())
+		require.Empty(t, decl.GetSignatureImports())
 	})
 
 	t.Run("InterfaceType", func(t *testing.T) {
@@ -313,8 +322,9 @@ func TestType(t *testing.T) {
 			},
 			decl,
 		)
-		require.Equal(t, "val interface{}", decl.Params[0].String())
-		require.Equal(t, "_ interface{}", decl.Results[0].String())
+		require.Equal(t, "val InterfaceType(interface{})", decl.Params[0].String())
+		require.Equal(t, "_ InterfaceType(interface{})", decl.Results[0].String())
+		require.Empty(t, decl.GetSignatureImports())
 	})
 
 	t.Run("ChanType", func(t *testing.T) {
@@ -350,8 +360,9 @@ func TestType(t *testing.T) {
 			},
 			decl,
 		)
-		require.Equal(t, "val chan string", decl.Params[0].String())
-		require.Equal(t, "_ chan string", decl.Results[0].String())
+		require.Equal(t, "val ChanType(chan string)", decl.Params[0].String())
+		require.Equal(t, "_ ChanType(chan string)", decl.Results[0].String())
+		require.Empty(t, decl.GetSignatureImports())
 	})
 
 	t.Run("IndexExpr", func(t *testing.T) {
@@ -412,8 +423,9 @@ func TestType(t *testing.T) {
 			},
 			decl,
 		)
-		require.Equal(t, "val *p2.Item[p2.ID]", decl.Params[0].String())
-		require.Equal(t, "_ *p2.Item[p2.ID]", decl.Results[0].String())
+		require.Equal(t, "val StarExpr(*p2.Item[p2.ID])", decl.Params[0].String())
+		require.Equal(t, "_ StarExpr(*p2.Item[p2.ID])", decl.Results[0].String())
+		require.Equal(t, ImportList{{Alias: "p2", Path: ""}}, decl.GetSignatureImports())
 	})
 }
 
@@ -464,8 +476,8 @@ func TestSetPackageInformation(t *testing.T) {
 			},
 			decl,
 		)
-		require.Equal(t, "val string", decl.Params[0].String())
-		require.Equal(t, "_ string", decl.Results[0].String())
+		require.Equal(t, "val Ident(string)", decl.Params[0].String())
+		require.Equal(t, "_ Ident(string)", decl.Results[0].String())
 	})
 
 	t.Run("Ident with type", func(t *testing.T) {

@@ -162,15 +162,19 @@ func prepareObjectSpecList(args commandArgs) (astpkg.ImportList, []objectSpec, e
 
 	clearImports := func() astpkg.ImportList {
 		usedImports := make(map[string]struct{})
+		addUsedImport := func(t astpkg.Type) {
+			for _, item := range t.Imports() {
+				usedImports[item.Alias] = struct{}{}
+				usedImports[item.AliasFromPath()] = struct{}{}
+			}
+		}
 		for _, item := range interfaceList {
 			for _, method := range item.Methods {
 				for _, p := range method.Params {
-					typeParts := strings.Split(p.TypeName, ".")
-					usedImports[typeParts[0]] = struct{}{}
+					addUsedImport(p.Type)
 				}
 				for _, r := range method.Results {
-					typeParts := strings.Split(r.TypeName, ".")
-					usedImports[typeParts[0]] = struct{}{}
+					addUsedImport(r.Type)
 				}
 			}
 		}

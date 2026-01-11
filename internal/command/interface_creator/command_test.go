@@ -116,6 +116,12 @@ func TestPrepareObjectSpecList(t *testing.T) {
 								{
 									Name:     "_",
 									TypeName: "childpkg.Struct",
+									Type: &astpkg.SelectorExpr{
+										Package:     "childpkg",
+										PackagePath: "github.com/khevse/codegen/tests/mainpkg/childpkg",
+										Name:        "Struct",
+										Type:        nil,
+									},
 								},
 							},
 						},
@@ -127,6 +133,12 @@ func TestPrepareObjectSpecList(t *testing.T) {
 								{
 									Name:     "_",
 									TypeName: "string",
+									Type: &astpkg.Ident{
+										Package:     "",
+										PackagePath: "",
+										Name:        "string",
+										Type:        nil,
+									},
 								},
 							},
 						},
@@ -137,6 +149,12 @@ func TestPrepareObjectSpecList(t *testing.T) {
 								{
 									Name:     "val",
 									TypeName: "childpkg.Struct",
+									Type: &astpkg.SelectorExpr{
+										Package:     "childpkg",
+										PackagePath: "github.com/khevse/codegen/tests/mainpkg/childpkg",
+										Name:        "Struct",
+										Type:        nil,
+									},
 								},
 							},
 							Results: []field{},
@@ -148,6 +166,33 @@ func TestPrepareObjectSpecList(t *testing.T) {
 								{
 									Name:     "val",
 									TypeName: "StructWithMethods",
+									Type: &astpkg.Ident{
+										Package:     "",
+										PackagePath: "",
+										Name:        "StructWithMethods",
+										Type: &astpkg.StructType{
+											Fields: []*astpkg.Field{
+												{
+													Name: "FieldStruct",
+													Type: &astpkg.SelectorExpr{
+														Package:     "childpkg",
+														PackagePath: "github.com/khevse/codegen/tests/mainpkg/childpkg",
+														Name:        "Struct",
+														Type:        nil,
+													},
+												},
+												{
+													Name: "FieldString",
+													Type: &astpkg.Ident{
+														Package:     "",
+														PackagePath: "",
+														Name:        "string",
+														Type:        nil,
+													},
+												},
+											},
+										},
+									},
 								},
 							},
 							Results: []field{},
@@ -159,6 +204,12 @@ func TestPrepareObjectSpecList(t *testing.T) {
 								{
 									Name:     "val",
 									TypeName: "childpkg.Interface",
+									Type: &astpkg.SelectorExpr{
+										Package:     "childpkg",
+										PackagePath: "github.com/khevse/codegen/tests/mainpkg/childpkg",
+										Name:        "Interface",
+										Type:        nil,
+									},
 								},
 							},
 							Results: []field{},
@@ -205,6 +256,12 @@ func TestPrepareObjectSpecList(t *testing.T) {
 								{
 									Name:     "_",
 									TypeName: "childpkg.Struct",
+									Type: &astpkg.SelectorExpr{
+										Package:     "childpkg",
+										PackagePath: "github.com/khevse/codegen/tests/mainpkg/childpkg",
+										Name:        "Struct",
+										Type:        nil,
+									},
 								},
 							},
 						},
@@ -216,6 +273,12 @@ func TestPrepareObjectSpecList(t *testing.T) {
 								{
 									Name:     "_",
 									TypeName: "string",
+									Type: &astpkg.Ident{
+										Package:     "",
+										PackagePath: "",
+										Name:        "string",
+										Type:        nil,
+									},
 								},
 							},
 						},
@@ -226,6 +289,12 @@ func TestPrepareObjectSpecList(t *testing.T) {
 								{
 									Name:     "val",
 									TypeName: "childpkg.Struct",
+									Type: &astpkg.SelectorExpr{
+										Package:     "childpkg",
+										PackagePath: "github.com/khevse/codegen/tests/mainpkg/childpkg",
+										Name:        "Struct",
+										Type:        nil,
+									},
 								},
 							},
 							Results: []field{},
@@ -237,6 +306,33 @@ func TestPrepareObjectSpecList(t *testing.T) {
 								{
 									Name:     "val",
 									TypeName: "mainpkg.StructWithMethods",
+									Type: &astpkg.Ident{
+										Package:     "mainpkg",
+										PackagePath: "github.com/khevse/codegen/tests/mainpkg",
+										Name:        "StructWithMethods",
+										Type: &astpkg.StructType{
+											Fields: []*astpkg.Field{
+												{
+													Name: "FieldStruct",
+													Type: &astpkg.SelectorExpr{
+														Package:     "childpkg",
+														PackagePath: "github.com/khevse/codegen/tests/mainpkg/childpkg",
+														Name:        "Struct",
+														Type:        nil,
+													},
+												},
+												{
+													Name: "FieldString",
+													Type: &astpkg.Ident{
+														Package:     "",
+														PackagePath: "",
+														Name:        "string",
+														Type:        nil,
+													},
+												},
+											},
+										},
+									},
 								},
 							},
 							Results: []field{},
@@ -248,6 +344,12 @@ func TestPrepareObjectSpecList(t *testing.T) {
 								{
 									Name:     "val",
 									TypeName: "childpkg.Interface",
+									Type: &astpkg.SelectorExpr{
+										Package:     "childpkg",
+										PackagePath: "github.com/khevse/codegen/tests/mainpkg/childpkg",
+										Name:        "Interface",
+										Type:        nil,
+									},
 								},
 							},
 							Results: []field{},

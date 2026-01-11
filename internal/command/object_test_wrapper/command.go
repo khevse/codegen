@@ -184,19 +184,22 @@ func prepareObjectSpec(args commandArgs) (astpkg.ImportList, *objectSpec, error)
 
 	clearImports := func() astpkg.ImportList {
 		usedImports := make(map[string]struct{})
+		addUsedImport := func(t astpkg.Type) {
+			for _, item := range t.Imports() {
+				usedImports[item.Alias] = struct{}{}
+				usedImports[item.AliasFromPath()] = struct{}{}
+			}
+		}
 		for _, item := range factoryDesc.Fields {
-			typeParts := strings.Split(item.TypeName, ".")
-			usedImports[typeParts[0]] = struct{}{}
+			addUsedImport(item.Type)
 			usedImports[filepath.Base(item.MockPackage)] = struct{}{}
 		}
 		for _, method := range factoryDesc.Methods {
 			for _, item := range method.Params {
-				typeParts := strings.Split(item.TypeName, ".")
-				usedImports[typeParts[0]] = struct{}{}
+				addUsedImport(item.Type)
 			}
 			for _, item := range method.Results {
-				typeParts := strings.Split(item.TypeName, ".")
-				usedImports[typeParts[0]] = struct{}{}
+				addUsedImport(item.Type)
 			}
 		}
 

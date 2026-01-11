@@ -14,6 +14,7 @@ type field struct {
 	TypeName       string
 	MockPackage    string
 	MockTypeName   string
+	Type           astpkg.Type
 }
 
 type methodSpec struct {
@@ -28,6 +29,7 @@ type objectSpecField struct {
 	TypeName     string
 	MockPackage  string
 	MockTypeName string
+	Type         astpkg.Type
 }
 
 type objectSpec struct {
@@ -163,6 +165,7 @@ func newFieldsList(
 			MockPackage:    mockPackage,
 			FuncSpecName:   lo.Ternary(item.Name == "", "_", item.Name),
 			TypeName:       item.Type.ExprString(),
+			Type:           item.Type,
 		}
 
 		fieldList = append(fieldList, f)
@@ -177,5 +180,6 @@ func newObjectSpecField(fieldDesc field) objectSpecField {
 		TypeName:     fieldDesc.TypeName,
 		MockPackage:  fieldDesc.MockPackage,
 		MockTypeName: fieldDesc.MockTypeName,
+		Type:         fieldDesc.Type,
 	}
 }

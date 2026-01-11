@@ -11,6 +11,7 @@ import (
 type field struct {
 	Name     string
 	TypeName string
+	Type     astpkg.Type
 }
 
 type methodSpec struct {
@@ -77,6 +78,7 @@ func newFieldsList(src []*astpkg.Field) []field {
 		f := field{
 			Name:     lo.Ternary(item.Name == "", "_", item.Name),
 			TypeName: item.Type.ExprString(),
+			Type:     item.Type,
 		}
 
 		fieldList = append(fieldList, f)

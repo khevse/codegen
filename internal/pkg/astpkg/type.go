@@ -32,6 +32,7 @@ var (
 type Type interface {
 	String() string
 	ExprString() string
+	Imports() ImportList
 }
 
 type PackageGetterType interface {
@@ -55,12 +56,20 @@ type Ident struct {
 	Type        Type
 }
 
-func (t Ident) String() string { return t.ExprString() }
+func (t Ident) String() string { return fmt.Sprintf("Ident(%s)", t.ExprString()) }
 func (t Ident) ExprString() string {
 	if t.Package == "" {
 		return t.Name
 	}
 	return fmt.Sprintf("%s.%s", t.Package, t.Name)
+}
+
+func (t Ident) Imports() ImportList {
+	if t.PackagePath != "" || t.Package != "" {
+		return ImportList{NewImport(t.Package, t.PackagePath)}
+	}
+
+	return nil
 }
 
 func (t Ident) GetPackage() string     { return t.Package }
@@ -71,25 +80,29 @@ type StarExpr struct {
 	Type Type
 }
 
-func (t StarExpr) String() string     { return t.ExprString() }
-func (t StarExpr) ExprString() string { return fmt.Sprintf("*%s", t.Type.ExprString()) }
+func (t StarExpr) String() string      { return fmt.Sprintf("StarExpr(%s)", t.ExprString()) }
+func (t StarExpr) ExprString() string  { return fmt.Sprintf("*%s", t.Type.ExprString()) }
+func (t StarExpr) Imports() ImportList { return t.Type.Imports() }
 
 type ArrayType struct {
 	Type Type
 }
 
-func (t ArrayType) String() string     { return t.ExprString() }
-func (t ArrayType) ExprString() string { return fmt.Sprintf("[]%s", t.Type.ExprString()) }
+func (t ArrayType) String() string      { return fmt.Sprintf("ArrayType(%s)", t.ExprString()) }
+func (t ArrayType) ExprString() string  { return fmt.Sprintf("[]%s", t.Type.ExprString()) }
+func (t ArrayType) Imports() ImportList { return t.Type.Imports() }
 
 type MapType struct {
 	Key   Type
 	Value Type
 }
 
-func (t MapType) String() string { return t.ExprString() }
+func (t MapType) String() string { return fmt.Sprintf("MapType(%s)", t.ExprString()) }
 func (t MapType) ExprString() string {
 	return fmt.Sprintf("map[%s]%s", t.Key.ExprString(), t.Value.ExprString())
 }
+
+func (t MapType) Imports() ImportList { return append(t.Key.Imports(), t.Value.Imports()...) }
 
 type SelectorExpr struct {
 	Package     string
@@ -100,10 +113,10 @@ type SelectorExpr struct {
 
 func (t SelectorExpr) String() string {
 	if t.Package == "" {
-		return t.Name
+		return fmt.Sprintf("SelectorExpr(%s)", t.Name)
 	}
 
-	return fmt.Sprintf("%s(%v)", t.ExprString(), t.Type)
+	return fmt.Sprintf("SelectorExpr(%s(%v))", t.ExprString(), t.Type)
 }
 
 func (t SelectorExpr) ExprString() string {
@@ -113,6 +126,15 @@ func (t SelectorExpr) ExprString() string {
 
 	return fmt.Sprintf("%s.%s", t.Package, t.Name)
 }
+
+func (t SelectorExpr) Imports() ImportList {
+	if t.PackagePath != "" || t.Package != "" {
+		return ImportList{NewImport(t.Package, t.PackagePath)}
+	}
+
+	return nil
+}
+
 func (t SelectorExpr) GetPackage() string     { return t.Package }
 func (t SelectorExpr) GetPackagePath() string { return t.PackagePath }
 func (t *SelectorExpr) SetPackage(i Import)   { t.Package = i.Alias; t.PackagePath = i.Path }
@@ -121,15 +143,16 @@ type EllipsisType struct {
 	Type Type
 }
 
-func (t EllipsisType) String() string     { return t.ExprString() }
-func (t EllipsisType) ExprString() string { return fmt.Sprintf("...%s", t.Type.ExprString()) }
+func (t EllipsisType) String() string      { return fmt.Sprintf("EllipsisType(%s)", t.ExprString()) }
+func (t EllipsisType) ExprString() string  { return fmt.Sprintf("...%s", t.Type.ExprString()) }
+func (t EllipsisType) Imports() ImportList { return t.Type.Imports() }
 
 type FuncType struct {
 	Params  []*Field
 	Results []*Field
 }
 
-func (t FuncType) String() string { return t.ExprString() }
+func (t FuncType) String() string { return fmt.Sprintf("FuncType(%s)", t.ExprString()) }
 func (t FuncType) ExprString() string {
 	writer := strings.Builder{}
 
@@ -156,11 +179,23 @@ func (t FuncType) ExprString() string {
 	return writer.String()
 }
 
+func (t FuncType) Imports() ImportList {
+	imports := make(ImportList, 0)
+	for _, f := range t.Params {
+		imports = append(imports, f.Type.Imports()...)
+	}
+	for _, f := range t.Results {
+		imports = append(imports, f.Type.Imports()...)
+	}
+
+	return imports
+}
+
 type InterfaceType struct {
 	Methods []*Field
 }
 
-func (t InterfaceType) String() string { return t.ExprString() }
+func (t InterfaceType) String() string { return fmt.Sprintf("InterfaceType(%s)", t.ExprString()) }
 func (t InterfaceType) ExprString() string {
 	strBuilder := strings.Builder{}
 	strBuilder.WriteString("interface{")
@@ -175,11 +210,19 @@ func (t InterfaceType) ExprString() string {
 	return strBuilder.String()
 }
 
+func (t InterfaceType) Imports() ImportList {
+	imports := make(ImportList, 0)
+	for _, f := range t.Methods {
+		imports = append(imports, f.Type.Imports()...)
+	}
+	return imports
+}
+
 type StructType struct {
 	Fields []*Field
 }
 
-func (t StructType) String() string { return t.ExprString() }
+func (t StructType) String() string { return fmt.Sprintf("StructType(%s)", t.ExprString()) }
 func (t StructType) ExprString() string {
 	strBuilder := strings.Builder{}
 	strBuilder.WriteString("struct{")
@@ -194,12 +237,20 @@ func (t StructType) ExprString() string {
 	return strBuilder.String()
 }
 
+func (t StructType) Imports() ImportList {
+	imports := make(ImportList, 0)
+	for _, f := range t.Fields {
+		imports = append(imports, f.Type.Imports()...)
+	}
+	return imports
+}
+
 type ChanType struct {
 	Type      Type
 	Direction ast.ChanDir
 }
 
-func (t ChanType) String() string { return t.ExprString() }
+func (t ChanType) String() string { return fmt.Sprintf("ChanType(%s)", t.ExprString()) }
 func (t ChanType) ExprString() string {
 	switch t.Direction {
 	case ast.SEND | ast.RECV:
@@ -212,16 +263,19 @@ func (t ChanType) ExprString() string {
 		return fmt.Sprintf("chan %s(direction: %v)", t.Type, t.Direction)
 	}
 }
+func (t ChanType) Imports() ImportList { return t.Type.Imports() }
 
 type IndexExpr struct {
 	Index Type
 	X     Type
 }
 
-func (t IndexExpr) String() string { return t.ExprString() }
+func (t IndexExpr) String() string { return fmt.Sprintf("IndexExpr(%s)", t.ExprString()) }
 func (t IndexExpr) ExprString() string {
 	return fmt.Sprintf("%s[%s]", t.X.ExprString(), t.Index.ExprString())
 }
+
+func (t IndexExpr) Imports() ImportList { return append(t.Index.Imports(), t.X.Imports()...) }
 
 func NewType(expr ast.Expr) Type {
 	switch casted := expr.(type) {

@@ -18,6 +18,10 @@ type Import struct {
 }
 
 func (i Import) String() string { return fmt.Sprintf("%s(%s)", i.Alias, i.Path) }
+func (i Import) AliasFromPath() string {
+	alias := filepath.Base(i.Path)
+	return lo.Ternary(alias == ".", "", alias)
+}
 
 func NewImport(alias, path string) Import {
 	return Import{

@@ -9,7 +9,7 @@ import(
 )
 
 {{ range .interfaces }}
-{{- if .Comment}} /* {{ .Comment  }} */ {{- end}}
+{{ if .Comment}} /* {{ .Comment  }} */ {{ end}}
 type {{.Name}} interface{
 {{- range .Methods }}
     {{- if .Comment}}

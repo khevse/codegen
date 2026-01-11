@@ -24,6 +24,17 @@ func (t FuncDecl) String() string {
 	return fmt.Sprintf("func (%s) %s", t.Receiver, t.Name)
 }
 
+func (t FuncDecl) GetSignatureImports() ImportList {
+	imports := make(ImportList, 0)
+	for _, field := range t.Params {
+		imports = append(imports, field.Type.Imports()...)
+	}
+	for _, field := range t.Results {
+		imports = append(imports, field.Type.Imports()...)
+	}
+	return lo.Uniq(imports)
+}
+
 type FuncDeclList []*FuncDecl
 
 func (l FuncDeclList) GetByReceiverName(name string) FuncDeclList {
