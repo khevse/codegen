@@ -12,16 +12,6 @@ type IFactory interface {
 	NewObject2(val string) IObject2
 }
 
-// IObject1 comment .
-type IObject1 interface {
-	String() string
-}
-
-// IObject2 comment .
-type IObject2 interface {
-	String() string
-}
-
 // Factory comment
 type Factory struct{}
 

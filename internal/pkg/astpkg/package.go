@@ -90,6 +90,10 @@ func ParsePackage(pkgName string) (*Package, error) {
 		return nil, errors.New("not found")
 	}
 
+	if err := setIdentTypes(resPkg); err != nil {
+		return nil, fmt.Errorf("set ident types: %w", err)
+	}
+
 	return resPkg, nil
 }
 
@@ -213,4 +217,52 @@ func getParsePackageError(pkgList []*packages.Package) error {
 	}
 
 	return err
+}
+
+func setIdentTypes(pkg *Package) error {
+	objectsTypes := make(map[string]Type)
+	for _, item := range pkg.TypeDeclList {
+		objectsTypes[item.Name] = item.Type
+	}
+
+	//nolint:unparam // result 0 (error) is always ni
+	setIdentType := func(t Type) error {
+		casted, ok := CastToType[Ident](t)
+		if !ok || casted.Type != nil {
+			return nil
+		}
+
+		typeByName, ok := objectsTypes[casted.Name]
+		if ok {
+			casted.Type = typeByName
+		}
+
+		return nil
+	}
+
+	for _, decl := range pkg.TypeDeclList {
+		err := InspectTypeDeclTypes(decl, func(t Type) error {
+			return InspectType(
+				t,
+				setIdentType,
+			)
+		})
+		if err != nil {
+			return fmt.Errorf("inspect type declaration(%s): %w", decl, err)
+		}
+	}
+
+	for _, decl := range pkg.FuncDeclList {
+		err := InspectFuncDeclFields(decl, func(f *Field) error {
+			return InspectType(
+				f.Type,
+				setIdentType,
+			)
+		})
+		if err != nil {
+			return fmt.Errorf("inspect function declaration(%s): %w", decl, err)
+		}
+	}
+
+	return nil
 }
